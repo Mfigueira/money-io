@@ -71,7 +71,7 @@ const displayMovements = (movements, sort = false) => {
     const html = `
       <div class="movements__row">
         <div class="movements__type movements__type--${type}">
-          ${i + 1} ${type}
+          ${++i} ${type}
         </div>
         <div class="movements__value">${mov}$</div>
       </div>
@@ -127,17 +127,62 @@ const resetInputs = (...inputs) =>
     input.blur();
   });
 
-// just for reference
+// Reduce examples
 const overallBalance = accounts
   // .map(acc => acc.movements).flat(1)
   .flatMap(acc => acc.movements)
-  .reduce((acc, mov) => acc + mov, 0);
+  .reduce((bal, mov) => bal + mov, 0);
 
 const movementsAverage = accounts
   .flatMap(acc => acc.movements)
   .reduce((acc, mov, _, movs) => acc + mov / movs.length, 0);
 
-const arr1to10 = Array.from({ length: 10 }, (_, i) => i + 1);
+const { d: deposits, w: withdrawals } = accounts
+  .flatMap(acc => acc.movements)
+  .reduce(
+    (movs, mov) => {
+      // mov > 0 ? (movs.d += mov) : (movs.w += mov);
+      movs[mov > 0 ? 'd' : 'w'] += mov;
+      return movs;
+    },
+    { d: 0, w: 0 }
+  );
+
+const converToTitleCase = str => {
+  const exceptions = [
+    'a',
+    'an',
+    'and',
+    'the',
+    'but',
+    'of',
+    'on',
+    'or',
+    'in',
+    'is',
+    'with',
+  ];
+  return str
+    .toLowerCase()
+    .split(' ')
+    .reduce(
+      (str, word) =>
+        str +
+        `${str && ' '}${
+          str && exceptions.includes(word)
+            ? word
+            : word[0].toUpperCase() + word.slice(1)
+        }`,
+      ''
+    );
+};
+
+// console.log(deposits, withdrawals);
+// console.log(converToTitleCase('this is a string FOR Testing the reduce'));
+// console.log(converToTitleCase('last and only'));
+// console.log(converToTitleCase('and there you go...'));
+
+const arr1to10 = Array.from({ length: 10 }, (_, i) => ++i);
 const arrOf1s = Array.from({ length: 5 }, () => 1);
 
 // Event handlers
