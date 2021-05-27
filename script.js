@@ -333,8 +333,7 @@ btnLogin.addEventListener('click', e => {
 
     updateUI(currentAccount);
 
-    timer && resetTimer();
-    timer = startLogOutTimer();
+    resetTimer();
   }
 });
 
