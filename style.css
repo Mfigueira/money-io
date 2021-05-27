@@ -216,6 +216,12 @@ nav {
   background-image: linear-gradient(to top left, #39b385, #9be15d);
 }
 
+.operation--loan__message {
+  font-size: 1.2rem;
+  font-style: italic;
+  font-weight: 400;
+}
+
 .operation--close {
   background-image: linear-gradient(to top left, #e52a5a, #ff585f);
 }

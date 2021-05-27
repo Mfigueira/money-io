@@ -93,6 +93,8 @@ const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
+const messageLoan = document.querySelector('.operation--loan__message');
+
 // App functions
 const formatMovementDate = (date, locale = navigator.locale) => {
   const calcDaysPassed = (date1, date2) =>
@@ -273,7 +275,29 @@ const randomInt = (min, max) =>
   Math.floor(Math.random() * (max - min + 1)) + min;
 
 // Event handlers
-let currentAccount;
+let currentAccount, timer;
+
+const resetTimer = () => {
+  clearInterval(timer);
+  labelTimer.textContent = '02:00';
+  timer = startLogOutTimer();
+};
+
+const startLogOutTimer = () => {
+  let time = 119;
+  const timer = setInterval(() => {
+    const min = `${Math.trunc(time / 60)}`.padStart(2, 0);
+    const sec = `${time % 60}`.padStart(2, 0);
+    labelTimer.textContent = `${min}:${sec}`;
+    if (time === 0) {
+      resetTimer();
+      labelWelcome.textContent = 'Log In';
+      containerApp.style.opacity = 0;
+    }
+    time--;
+  }, 1000);
+  return timer;
+};
 
 btnLogin.addEventListener('click', e => {
   e.preventDefault();
@@ -308,6 +332,9 @@ btnLogin.addEventListener('click', e => {
     // labelDate.textContent = `${day}/${month}/${year}, ${hour}:${min}`;
 
     updateUI(currentAccount);
+
+    timer && resetTimer();
+    timer = startLogOutTimer();
   }
 });
 
@@ -329,6 +356,7 @@ btnTransfer.addEventListener('click', e => {
     receiver.movements.push(amount);
     receiver.movementsDates.push(new Date().toISOString());
     updateUI(currentAccount);
+    resetTimer();
   }
 });
 
@@ -337,9 +365,15 @@ btnLoan.addEventListener('click', e => {
   const amount = Math.floor(inputLoanAmount.value);
   if (amount > 0 && currentAccount.movements.some(mov => mov >= amount * 0.1)) {
     resetInputs(inputLoanAmount);
-    currentAccount.movements.push(amount);
-    currentAccount.movementsDates.push(new Date().toISOString());
-    updateUI(currentAccount);
+    messageLoan.textContent = 'Waiting approval...';
+    setTimeout(() => {
+      currentAccount.movements.push(amount);
+      currentAccount.movementsDates.push(new Date().toISOString());
+      updateUI(currentAccount);
+      messageLoan.textContent = 'Loan approved!';
+      setTimeout(() => (messageLoan.textContent = ''), 3000);
+    }, 2000);
+    resetTimer();
   }
 });
 
@@ -355,6 +389,7 @@ btnClose.addEventListener('click', e => {
       acc => acc.username === currentAccount.username
     );
     accounts.splice(index, 1);
+    resetTimer();
   }
 });
 
@@ -363,4 +398,5 @@ btnSort.addEventListener('click', e => {
   e.preventDefault();
   sorted = !sorted;
   displayMovements(currentAccount, sorted);
+  resetTimer();
 });
